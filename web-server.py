@@ -63,8 +63,13 @@ def serve(connection):
         request = request.decode('utf-8')
         try:
             requestParts = request.splitlines()
+            
+            print(requestParts)
+            #print(request.splitlines())
             verb = requestParts[0].split()[0]
             request = requestParts[0].split()[1]
+            print(request)
+            #print(verb)
         except IndexError:
             pass
         if request == '/lighton?':
@@ -78,13 +83,17 @@ def serve(connection):
             body = requestParts[-1]
             print(body)
             if 'Unmuted' in body:
-                display.pixel(2,2,1)
+                display.fill_rect(0,0,3,3,1)
             if 'Muted' in body:
-                display.pixel(2,2,0)
+                display.fill_rect(0,0,3,3,0)
             if 'On' in body:
-                display.pixel(7,7,1)
+                display.line(7,3,7,7,1)
+                display.line(6,4,6,6,1)
+                display.pixel(5,5,1)
             if 'Off' in body:
-                display.pixel(7,7,0)
+                display.line(7,3,7,7,0)
+                display.line(6,4,6,7,0)
+                display.pixel(5,5,0)
                 
         temperature = pico_temp_sensor.temp
         html = webpage(temperature, state)
@@ -94,7 +103,7 @@ def serve(connection):
 
 def max7219():
     print("max7219")
-    display.fill(0)
+    display.pixel(0,7,1)
     display.show()
 
 try:
