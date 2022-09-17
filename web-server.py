@@ -63,6 +63,7 @@ def serve(connection):
     while True:
         client = connection.accept()[0]
         request = client.recv(1024)
+        pulse()
         request = request.decode('utf-8')
         try:
             requestParts = request.splitlines()
@@ -93,6 +94,12 @@ def serve(connection):
         display.show()
         client.close()
         
+def pulse():
+    display.pixel(31,0,1)
+    display.show()
+    sleep(0.2)
+    display.pixel(31,0,0)
+    display.show()
 def updateDisplay(data):
     if 'Unmuted' in data:
         showAudio()
@@ -146,7 +153,7 @@ def video(on):
     
 def max7219():
     print("max7219")
-    display.pixel(0,7,1)
+    display.pixel(31,7,1)
     display.show()
 
 try:
@@ -156,3 +163,5 @@ try:
     serve(connection)
 except KeyboardInterrupt:
     machine.reset()
+    
+
