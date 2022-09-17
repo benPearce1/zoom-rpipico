@@ -14,5 +14,5 @@ Save `web-server.py` script to root as `main.py`
 
 **Issues**
 
-State when Zoom is not running is showing as Video on
+
 
