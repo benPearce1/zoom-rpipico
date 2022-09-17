@@ -5,13 +5,16 @@ from machine import Pin, SPI
 import max7219
 from time import sleep
 
+displaySize=4
+
 ssid = ''
 password = ''
 
 spi = SPI(0,sck=Pin(2),mosi=Pin(3))
 cs = Pin(5, Pin.OUT)
-display = max7219.Matrix8x8(spi, Pin(5), 1)
-display.brightness(5)
+display = max7219.Matrix8x8(spi, Pin(5), displaySize)
+
+display.brightness(3)
 display.show()
 
 def connect():
@@ -82,25 +85,65 @@ def serve(connection):
             print('POST')
             body = requestParts[-1]
             print(body)
-            if 'Unmuted' in body:
-                display.fill_rect(0,0,3,3,1)
-            if 'Muted' in body:
-                display.fill_rect(0,0,3,3,0)
-            if 'On' in body:
-                display.line(7,3,7,7,1)
-                display.line(6,4,6,6,1)
-                display.pixel(5,5,1)
-            if 'Off' in body:
-                display.line(7,3,7,7,0)
-                display.line(6,4,6,7,0)
-                display.pixel(5,5,0)
-                
+            updateDisplay(body)
+            
         temperature = pico_temp_sensor.temp
         html = webpage(temperature, state)
         client.send(html)
         display.show()
         client.close()
+        
+def updateDisplay(data):
+    if 'Unmuted' in data:
+        showAudio()
+    if 'Muted' in data:
+        hideAudio()
+    if 'On' in data:
+        showVideo()
+    if 'Off' in data:
+        hideVideo()
+    
+def showAudio():
+    audio(True)
+    
+def hideAudio():
+    audio(False)
+    
+def showVideo():
+    video(True)
+    
+def hideVideo():
+    video(False)
 
+def audio(on):
+    col = 0
+    if on == True:
+        col = 1
+    if displaySize == 1:
+        display.fill_rect(0,0,3,3,col)
+    else:
+        display.fill_rect(16,4,3,3,col)
+        display.fill_rect(21,4,3,3,col)
+        display.line(17,2,17,3,col)
+        display.line(18,1,21,1,col)
+        display.line(22,2,22,3,col)
+        
+def video(on):
+    col = 0
+    if on == True:
+        col = 1
+
+    if displaySize == 1:
+        display.line(7,3,7,7,col)
+        display.line(6,4,6,6,col)
+        display.pixel(5,5,col)
+    else:
+        display.fill_rect(0,1,5,6,col)
+        display.line(7,1,7,6,col)
+        display.line(6,2,6,5,col)
+        display.pixel(5,3,col)
+        display.pixel(5,4,col)
+    
 def max7219():
     print("max7219")
     display.pixel(0,7,1)
@@ -113,5 +156,3 @@ try:
     serve(connection)
 except KeyboardInterrupt:
     machine.reset()
-    
-
